@@ -194,5 +194,3 @@ end
 service "nginx" do
   action [ :enable, :start ]
 end
-# Include Recipes.
-include_recipe 'nginx_opsworks::logrotate'
