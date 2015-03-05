@@ -94,8 +94,8 @@ bash "run passenger install" do
   code "bundle exec passenger-install-nginx-module --auto --auto-download  --prefix=/usr/share/nginx --extra-configure-flags=\"--prefix=/usr/share/nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --http-client-body-temp-path=/var/lib/nginx/tmp/client_body --http-proxy-temp-path=/var/lib/nginx/tmp/proxy --http-fastcgi-temp-path=/var/lib/nginx/tmp/fastcgi --http-uwsgi-temp-path=/var/lib/nginx/tmp/uwsgi --http-scgi-temp-path=/var/lib/nginx/tmp/scgi --pid-path=/var/run/nginx.pid --lock-path=/var/lock/subsys/nginx --user=#{node[:passenger][:default_user]} --group=nginx --with-file-aio --with-ipv6 --with-http_ssl_module --with-http_realip_module --with-http_addition_module --with-http_xslt_module --with-http_image_filter_module --with-http_geoip_module --with-http_sub_module --with-http_dav_module --with-http_flv_module --with-http_mp4_module --with-http_gzip_static_module --with-http_random_index_module --with-http_secure_link_module --with-http_degradation_module --with-http_stub_status_module --with-http_perl_module --with-mail --with-mail_ssl_module --with-pcre --with-google_perftools_module --with-debug --with-cc-opt='-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m64 -mtune=generic' --with-ld-opt=' -Wl,-E'\""
 end
 
-passenger_root = `passenger-config --root`
-Chef::Log.info "$$$$$$$$$$$$$ -> passengger root from passenger-config -> #{passenger_root}"
+#passenger_root = `passenger-config --root`
+#Chef::Log.info "$$$$$$$$$$$$$ -> passengger root from passenger-config -> #{passenger_root}"
 
 # create the template
 template "#{node[:nginx][:dir]}/stack.conf" do
@@ -103,7 +103,8 @@ template "#{node[:nginx][:dir]}/stack.conf" do
   owner "root"
   group "root"
   mode 00644
-  variables(
+  variables lazy
+    :passenger_root: `bash -c "passenger-config --root"`.strip,
     :passenger_max_pool_size => node[:passenger][:max_pool_size],
     :passenger_pool_idle_time => node[:passenger][:pool_idle_time],
     :passenger_default_user => node[:passenger][:default_user],
