@@ -1,0 +1,64 @@
+server {
+
+  listen 444;
+
+  server_name FD;
+
+  ssl on;
+  ssl_certificate /etc/nginx/ssl/helpkit.crt;
+  ssl_certificate_key /etc/nginx/ssl/helpkit.key;
+  ssl_prefer_server_ciphers on;
+  ssl_protocols  SSLv3 TLSv1;
+  ssl_ciphers ECDHE-RSA-AES256-SHA384:AES256-SHA256:RC4:HIGH:!MD5:!aNULL:!EDH:!AESGCM;
+
+  client_max_body_size 100M;
+
+  root /data/helpkit/current/public;
+
+  access_log /var/log/nginx/helpkit.ssl.access.log main;
+  error_log /var/log/nginx/helpkit.ssl.error.log notice;
+
+  location ~ ^/(images|assets|javascripts|stylesheets)/ {
+    expires 10y;
+    try_files  $uri $uri/index.html /last_assets/$uri /last_assets/$uri.html @app_helpkitssl;
+  }
+
+  error_page 404 /404.html;
+  error_page 500 502 504 /500.html;
+  error_page 503 @503;
+  recursive_error_pages on;
+  location @503 {
+
+    error_page 405 = /system/maintenance.html;
+
+    if (-f $request_filename) {
+      break;
+    }
+
+    rewrite ^(.*)$ /system/maintenance.html break;
+  }
+
+  location @app_helpkitssl {
+
+    passenger_enabled on;
+
+    passenger_set_cgi_param HTTP_X_FORWARDED_FOR   $proxy_add_x_forwarded_for;
+    passenger_set_cgi_param HTTP_X_REAL_IP         $remote_addr;
+    passenger_set_cgi_param HTTP_HOST              $http_host;
+    passenger_set_cgi_param HTTP_X_FORWARDED_PROTO $scheme;
+    passenger_set_cgi_param HTTP_X_REQUEST_START   "t=${msec}";
+    passenger_set_cgi_param SERVER_PORT            443;
+
+    rails_env <%= node[:opsworks][:environment] %>;
+
+    passenger_min_instances 2;
+
+  }
+
+  location / {
+  if (-f $document_root/system/maintenance.html) { return 503; }
+    try_files  $uri $uri/index.html $uri.html @app_helpkitssl;
+  }
+include /etc/nginx/servers/helpkit/custom.ssl.conf;
+}
+

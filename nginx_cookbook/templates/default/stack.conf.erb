@@ -1,0 +1,21 @@
+passenger_root <%= (`passenger-config --root`).chomp %>;
+passenger_max_pool_size <%= @passenger_max_pool_size %>;
+passenger_pool_idle_time <%= @passenger_pool_idle_time %>;
+passenger_default_user <%= @passenger_default_user %>;
+proxy_buffer_size <%= @proxy_buffer_size %>;
+proxy_buffers   <%= @proxy_buffers %>;
+proxy_busy_buffers_size   <%= @proxy_busy_buffers_size %>;
+passenger_min_instances <%= @passenger_min_instances %>;
+passenger_buffer_size <%= @passenger_buffer_size %>;
+passenger_buffers   <%= @passenger_buffers %>;
+passenger_busy_buffers_size   <%= @passenger_busy_buffers_size %>;
+passenger_friendly_error_pages off;
+<%
+host_name = node[:opsworks][:instance][:hostname]
+layer = node[:opsworks][:instance][:layers].first
+rails3_hosts=(node[:rails3][:hostnames] || [])
+rails3_layers=(node[:rails3][:layers] || [])
+if rails3_layers.include?(layer) || rails3_hosts.include?(host_name)
+%>
+passenger_start_timeout 240;
+<%end%>

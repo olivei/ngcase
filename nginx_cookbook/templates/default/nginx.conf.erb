@@ -1,0 +1,52 @@
+user <%= node[:passenger][:default_user] %> nginx;
+worker_processes <%= node[:nginx][:worker_processes] %>;
+
+worker_rlimit_nofile <%= node[:nginx][:worker_rlimit_nofile] %>;
+pid <%= node[:nginx][:pid] %>;
+
+env PATH;
+
+events {
+  worker_connections  <%= node[:nginx][:worker_connections] %>;
+  use epoll;
+}
+
+http {
+
+  include <%= node[:nginx][:dir] %>/mime.types;
+
+  default_type application/octet-stream;
+
+  log_format main '$remote_addr - $remote_user [$time_local] '
+                  '"$request" $status $body_bytes_sent "$http_referer" '
+                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+  sendfile on;
+
+  tcp_nopush        on;
+
+  server_names_hash_bucket_size  128;
+
+  if_modified_since before;
+  gzip              <%= node[:nginx][:gzip] %>;
+  <% if node[:nginx][:gzip] == "on" %>
+  gzip_http_version <%= node[:nginx][:gzip_http_version] %>;
+  gzip_comp_level   <%= node[:nginx][:gzip_comp_level] %>;
+  gzip_proxied      <%= node[:nginx][:gzip_proxied] %>;
+  gzip_buffers      <%= node[:nginx][:gzip_buffers] %>;
+  gzip_types        <%= node[:nginx][:gzip_types].join(' ') %>;
+  # gzip_disable    <%= node[:nginx][:gzip_disable] %>;
+  <% end %>
+
+  # Fixes the IP for instances behind HAProxy
+  set_real_ip_from  <%= node[:nginx][:set_real_ip_from] %>;
+  real_ip_header <%= node[:nginx][:real_ip_header] %>;
+
+  # Allow custom settings to be added to the http block
+  include /etc/nginx/http-custom.conf;
+  include /etc/nginx/stack.conf;
+  include /etc/nginx/servers/*.conf;
+  include /etc/nginx/servers/helpkit/*.conf;
+}
+
+include /etc/nginx/servers/*.tcp_conf;
