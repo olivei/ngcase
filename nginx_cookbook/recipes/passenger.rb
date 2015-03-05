@@ -105,18 +105,18 @@ template "#{node[:nginx][:dir]}/stack.conf" do
   mode 00644
   variables (
     lazy {
-     {:passenger_root => `bash -c "passenger-config --root"`.strip}
-   }
-    :passenger_max_pool_size => node[:passenger][:max_pool_size],
-    :passenger_pool_idle_time => node[:passenger][:pool_idle_time],
-    :passenger_default_user => node[:passenger][:default_user],
-    :passenger_min_instances => node[:passenger][:min_instances],
-    :passenger_buffer_size => node[:passenger][:buffer_size],
-    :passenger_buffers => node[:passenger][:buffers],
-    :passenger_busy_buffers_size => node[:passenger][:busy_buffers_size],
-    :proxy_buffer_size => node[:proxy][:buffer_size],
-    :proxy_buffers => node[:proxy][:buffers],
-    :proxy_busy_buffers_size => node[:proxy][:busy_buffers_size]
+     {passenger_root: `bash -c "passenger-config --root"`.strip},
+    passenger_max_pool_size: node[:passenger][:max_pool_size],
+    passenger_pool_idle_time: node[:passenger][:pool_idle_time],
+    passenger_default_user: node[:passenger][:default_user],
+    passenger_min_instances: node[:passenger][:min_instances],
+    passenger_buffer_size: node[:passenger][:buffer_size],
+    passenger_buffers: node[:passenger][:buffers],
+    passenger_busy_buffers_size: node[:passenger][:busy_buffers_size],
+    proxy_buffer_size: node[:proxy][:buffer_size],
+    proxy_buffers: node[:proxy][:buffers],
+    proxy_busy_buffers_size: node[:proxy][:busy_buffers_size]
+  }
   )
 end
 
