@@ -103,9 +103,10 @@ template "#{node[:nginx][:dir]}/stack.conf" do
   owner "root"
   group "root"
   mode 00644
-  variables lazy {
-    {
-    passenger_root: `bash -c "passenger-config --root"`.strip,
+  variables (
+    lazy {
+     {:passenger_root => `bash -c "passenger-config --root"`.strip}
+     },
     :passenger_max_pool_size => node[:passenger][:max_pool_size],
     :passenger_pool_idle_time => node[:passenger][:pool_idle_time],
     :passenger_default_user => node[:passenger][:default_user],
@@ -117,7 +118,7 @@ template "#{node[:nginx][:dir]}/stack.conf" do
     :proxy_buffers => node[:proxy][:buffers],
     :proxy_busy_buffers_size => node[:proxy][:busy_buffers_size]
     }
-  }
+  )
 end
 
 # more templates
