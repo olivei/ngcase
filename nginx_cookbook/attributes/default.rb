@@ -36,8 +36,8 @@ override[:nginx][:real_ip_header] = 'X-Forwarded-For'
 # passenger settings
 host_name = node[:opsworks][:instance][:hostname]
 layer = node[:opsworks][:instance][:layers].first
-rails3_hosts=(node[:rails3][:hostnames] || [])
-rails3_layers=(node[:rails3][:layers] || [])
+rails3_hosts=(node[:rails3][:hostnames])
+rails3_layers=(node[:rails3][:layers])
 if rails3_layers.include?(layer) || rails3_hosts.include?(host_name)
   override[:passenger][:version] = '4.0.59'
 else
